@@ -2,138 +2,1001 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PhysiqueMaxx</title>
+<meta name="description" content="An AI physique tracker. Built in a day. Open source. Four photos in, an honest verdict out.">
 <style>
-  :root{
-    --bg:#0b0d10;
-    --panel:#12151a;
-    --line:#22272f;
-    --text:#e8ebef;
-    --muted:#9aa3af;
-    --accent:#7fe0c2;
-    --accent-ink:#04120d;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  a{color:var(--accent);text-decoration:none}
-  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
-  section{padding:56px 0;border-top:1px solid var(--line)}
-  h1{font-size:44px;line-height:1.1;margin:0 0 14px;letter-spacing:-0.5px}
-  h2{font-size:22px;margin:0 0 20px;letter-spacing:-0.2px}
-  p{margin:0 0 14px;color:var(--text)}
-  .muted{color:var(--muted)}
+:root{
+  --canvas:#070807; --canvas-deep:#040504;
+  --surface:#111311; --raised:#171917; --soft:#1d201d;
+  --paper:#f3efe6; --paper-ink:#151713;
+  --text:#f4f1ea; --muted:#a1a69f; --subtle:#7f857e;
+  --ember:#ff6537; --ember-hot:#ff4720;
+  --green:#62d99a; --red:#ff5b54; --gold:#d3aa63; --cobalt:#345cff;
+  --hair:rgba(244,241,234,.09);
+  --hair-2:rgba(244,241,234,.055);
+  --glass:rgba(23,25,23,.6);
+  --shadow:0 30px 80px -30px rgba(0,0,0,.9);
+  --maxw:1180px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;padding:0}
+body{
+  background:var(--canvas);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji",sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--ember);color:#0a0a09}
 
-  .hero{padding:88px 0 64px;border-top:none}
-  .lead{font-size:19px;color:var(--muted);margin-bottom:28px}
-  .btn{
-    display:inline-block;
-    background:var(--accent);
-    color:var(--accent-ink);
-    font-weight:600;
-    padding:12px 20px;
-    border-radius:10px;
-  }
-  .btn:hover{opacity:.9}
+/* atmospheric page grain / vignette */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 78% -8%, rgba(255,101,55,.14), transparent 60%),
+    radial-gradient(900px 600px at 8% 12%, rgba(52,92,255,.08), transparent 60%),
+    radial-gradient(1000px 900px at 50% 120%, rgba(255,71,32,.10), transparent 55%);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.022) 1px, transparent 1px);
+  background-size:3px 3px;mix-blend-mode:overlay;
+}
+.wrap{position:relative;z-index:2}
+.container{max-width:var(--maxw);margin:0 auto;padding:0 22px}
 
-  .steps{display:grid;gap:14px;margin-top:8px}
-  .step{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:16px 18px;
-  }
-  .num{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:26px;height:26px;border-radius:7px;
-    background:var(--accent);color:var(--accent-ink);
-    font-weight:700;font-size:14px;margin-right:10px;
-  }
-  .step b{font-size:16px}
-  .step p{margin:8px 0 0;color:var(--muted)}
+/* ---------- typography ---------- */
+h1,h2,h3,h4{margin:0;font-weight:650;letter-spacing:-.02em;line-height:1.02}
+.kicker{
+  font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ember);
+  font-weight:650;display:inline-flex;align-items:center;gap:10px;
+}
+.kicker::before{content:"";width:26px;height:1px;background:linear-gradient(90deg,var(--ember),transparent)}
+.eyebrow{color:var(--subtle);font-size:12px;letter-spacing:.22em;text-transform:uppercase}
+.lead{color:var(--muted);font-size:clamp(16px,2.1vw,19px);line-height:1.6;max-width:56ch}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.big{font-size:clamp(34px,6.4vw,74px);line-height:.98;letter-spacing:-.03em;font-weight:680}
 
-  ul.list{list-style:none;padding:0;margin:10px 0 0}
-  ul.list li{
-    padding:12px 0;border-bottom:1px solid var(--line);
-    display:flex;gap:12px;align-items:flex-start;
-  }
-  ul.list li:last-child{border-bottom:none}
-  .tick{color:var(--accent);font-weight:700;flex:0 0 auto}
+/* ---------- sticky top bar ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px clamp(16px,4vw,34px);
+  backdrop-filter:blur(14px) saturate(1.2);
+  background:linear-gradient(180deg,rgba(7,8,7,.82),rgba(7,8,7,.28));
+  border-bottom:1px solid var(--hair-2);
+}
+.brand{display:flex;align-items:center;gap:11px;font-weight:660;letter-spacing:-.02em;font-size:16px}
+.brand .glyph{width:26px;height:26px;flex:0 0 auto}
+.brand b{color:var(--text)}
+.brand .max{color:var(--ember)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.pill-link{font-size:13px;color:var(--muted);padding:8px 12px;border-radius:999px}
+.pill-link:hover{color:var(--text)}
+@media(max-width:640px){.pill-link.hideable{display:none}}
 
-  .note{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-left:3px solid var(--accent);
-    border-radius:10px;
-    padding:18px 18px;
-  }
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:14px;font-weight:600;letter-spacing:-.01em;
+  padding:11px 18px;border-radius:999px;border:1px solid transparent;
+  cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s;
+  white-space:nowrap;
+}
+.btn svg{width:15px;height:15px}
+.btn-ember{
+  background:linear-gradient(180deg,var(--ember),var(--ember-hot));
+  color:#160a05;box-shadow:0 10px 30px -8px rgba(255,71,32,.6), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.btn-ember:hover{transform:translateY(-2px);box-shadow:0 16px 40px -10px rgba(255,71,32,.75), inset 0 1px 0 rgba(255,255,255,.3)}
+.btn-ghost{background:rgba(244,241,234,.04);color:var(--text);border-color:var(--hair)}
+.btn-ghost:hover{background:rgba(244,241,234,.08);transform:translateY(-2px)}
 
-  footer{
-    border-top:1px solid var(--line);
-    padding:28px 0 48px;
-    color:var(--muted);
-    font-size:14px;
-  }
+/* ---------- section shell ---------- */
+section{position:relative;padding:clamp(72px,10vw,132px) 0}
+.sec-head{max-width:760px;margin-bottom:clamp(34px,5vw,60px)}
+.sec-head h2{font-size:clamp(28px,4.6vw,48px);margin-top:16px}
+.sec-head p{margin-top:18px}
+.step-index{
+  font-family:ui-monospace,monospace;font-size:12px;color:var(--subtle);
+  letter-spacing:.2em;
+}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1!important;transform:none!important;transition:none!important}
+  *{animation:none!important;scroll-behavior:auto!important}
+}
+
+/* ---------- HERO ---------- */
+.hero{
+  min-height:100svh;padding-top:118px;padding-bottom:60px;
+  display:flex;align-items:center;overflow:hidden;
+  background:
+    radial-gradient(120% 80% at 80% 0%, rgba(255,71,32,.16), transparent 55%),
+    linear-gradient(180deg,var(--canvas-deep),var(--canvas) 70%);
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;width:100%}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:8px}}
+.hero h1{font-size:clamp(44px,9vw,104px);line-height:.9;letter-spacing:-.04em;font-weight:700}
+.hero h1 .em{color:var(--ember);position:relative}
+.hero-sub{margin-top:26px;max-width:44ch}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);
+  padding:8px 13px;border-radius:999px;border:1px solid var(--hair);background:rgba(244,241,234,.03);
+  letter-spacing:.01em;
+}
+.chip .dot{width:6px;height:6px;border-radius:50%}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.scroll-hint{margin-top:44px;display:flex;align-items:center;gap:12px;color:var(--subtle);font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+.scroll-hint .line{width:1px;height:34px;background:linear-gradient(var(--ember),transparent);position:relative;overflow:hidden}
+.scroll-hint .line::after{content:"";position:absolute;top:-34px;left:0;width:1px;height:34px;background:var(--ember);animation:drop 2.4s var(--ease) infinite}
+@keyframes drop{0%{top:-34px}60%,100%{top:34px}}
+
+/* ---------- PHONE MOCKUP ---------- */
+.phone-stage{position:relative;display:flex;justify-content:center;perspective:1600px}
+.phone{
+  width:min(310px,78vw);aspect-ratio:9/19.2;border-radius:44px;position:relative;
+  background:linear-gradient(160deg,#26292a,#0c0d0c 60%);
+  padding:11px;
+  box-shadow:var(--shadow), 0 0 0 1px rgba(255,255,255,.05), inset 0 0 0 1px rgba(0,0,0,.6);
+  transform:rotateY(-16deg) rotateX(6deg) rotateZ(1deg);
+  transition:transform .8s var(--ease);
+}
+.phone-stage:hover .phone{transform:rotateY(-8deg) rotateX(3deg)}
+.phone::before{content:"";position:absolute;top:15px;left:50%;transform:translateX(-50%);width:88px;height:22px;background:#0a0b0a;border-radius:999px;z-index:6;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.screen{
+  position:absolute;inset:11px;border-radius:34px;overflow:hidden;
+  background:radial-gradient(120% 80% at 50% -10%,rgba(255,101,55,.18),transparent 55%),var(--canvas);
+  display:flex;flex-direction:column;
+}
+.screen-top{padding:34px 18px 8px;display:flex;align-items:center;justify-content:space-between}
+.screen-top .t{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.screen-top .s{font-size:11px;color:var(--ember);font-weight:600}
+
+/* card deck inside hero phone */
+.deck{position:relative;flex:1;padding:6px 18px 20px}
+.deck-card{
+  position:absolute;left:18px;right:18px;border-radius:22px;overflow:hidden;
+  border:1px solid rgba(244,241,234,.08);
+  box-shadow:0 20px 40px -20px rgba(0,0,0,.9);
+  background:var(--soft);
+}
+.deck-card .cover{position:relative;height:100%;width:100%}
+.deck-card .meta{
+  position:absolute;left:0;right:0;bottom:0;padding:12px 13px;
+  background:linear-gradient(0deg,rgba(4,5,4,.9),transparent);
+  display:flex;align-items:flex-end;justify-content:space-between;
+}
+.deck-card .date{font-size:11px;color:var(--muted)}
+.deck-card .badge{
+  font-family:ui-monospace,monospace;font-weight:700;font-size:15px;color:var(--text);
+  background:rgba(7,8,7,.6);border:1px solid var(--hair);border-radius:10px;padding:3px 9px;
+}
+.deck-card.c1{top:8px;transform:scale(1);z-index:5;height:64%}
+.deck-card.c2{top:20px;transform:scale(.955);z-index:4;height:64%;filter:brightness(.8)}
+.deck-card.c3{top:32px;transform:scale(.91);z-index:3;height:64%;filter:brightness(.6)}
+.deck-card.c4{top:42px;transform:scale(.87);z-index:2;height:64%;filter:brightness(.42)}
+.phone-stage:hover .deck-card.c1{top:2px}
+.deck-card,.phone-stage:hover .deck-card{transition:top .7s var(--ease),transform .7s var(--ease)}
+
+.silhouette-bg{position:absolute;inset:0;background:
+  radial-gradient(90% 70% at 50% 0%, rgba(255,101,55,.22), transparent 60%),
+  linear-gradient(180deg,#22140d,#0b0705);}
+.deck-nav{display:flex;gap:6px;justify-content:center;padding:0 0 8px}
+.deck-nav i{width:6px;height:6px;border-radius:50%;background:rgba(244,241,234,.18)}
+.deck-nav i.on{background:var(--ember);width:18px;border-radius:3px}
+
+/* floating glass tags around phone */
+.float{
+  position:absolute;z-index:8;background:var(--glass);border:1px solid var(--hair);
+  backdrop-filter:blur(10px);border-radius:14px;padding:9px 12px;font-size:12px;color:var(--text);
+  box-shadow:0 18px 40px -20px rgba(0,0,0,.9);display:flex;align-items:center;gap:9px;
+}
+.float .k{font-family:ui-monospace,monospace;font-weight:700}
+.float.f1{top:8%;left:-6%;animation:floaty 6s ease-in-out infinite}
+.float.f2{bottom:16%;right:-8%;animation:floaty 7s ease-in-out infinite .6s}
+.float.f3{bottom:2%;left:2%;animation:floaty 8s ease-in-out infinite .3s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media(max-width:560px){.float.f1{left:2%}.float.f2{right:2%}}
+
+/* ---------- generic card ---------- */
+.card{
+  background:linear-gradient(180deg,var(--raised),var(--surface));
+  border:1px solid var(--hair);border-radius:22px;padding:22px;
+  box-shadow:0 26px 60px -34px rgba(0,0,0,.9);
+}
+.card-soft{background:var(--surface)}
+.panel-paper{background:var(--paper);color:var(--paper-ink);border-radius:22px;border:1px solid rgba(0,0,0,.06)}
+
+/* ---------- section: 4 photo ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,5vw,60px);align-items:center}
+@media(max-width:860px){.split{grid-template-columns:1fr;gap:34px}}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pgrid-cell{
+  position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
+  border:1px solid var(--hair);background:var(--soft);
+}
+.pgrid-cell .tag{
+  position:absolute;top:8px;left:8px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text);background:rgba(7,8,7,.6);border:1px solid var(--hair);border-radius:8px;padding:3px 8px;z-index:2;
+}
+.pgrid-cell .who{position:absolute;bottom:8px;right:8px;font-size:10px;color:var(--muted);z-index:2}
+.frame-fill{position:absolute;inset:0}
+.people-toggle{display:inline-flex;background:var(--soft);border:1px solid var(--hair);border-radius:999px;padding:4px;gap:4px;margin-bottom:16px}
+.people-toggle span{font-size:12.5px;padding:7px 14px;border-radius:999px;color:var(--muted)}
+.people-toggle span.active{background:var(--ember);color:#160a05;font-weight:600}
+.src-row{display:flex;gap:10px;margin-top:16px}
+.src{flex:1;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);border:1px dashed var(--hair);border-radius:14px;padding:12px}
+.src svg{width:18px;height:18px;color:var(--ember)}
+
+/* ---------- PIPELINE ---------- */
+.pipe{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative}
+@media(max-width:820px){.pipe{grid-template-columns:1fr}}
+.stage{position:relative;overflow:hidden}
+.stage .n{font-family:ui-monospace,monospace;font-size:12px;color:var(--ember);letter-spacing:.2em}
+.stage h3{font-size:22px;margin:12px 0 6px}
+.stage .role{font-size:12px;color:var(--subtle);text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px}
+.stage p{font-size:14px;color:var(--muted);line-height:1.6}
+.stage .icn{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(255,101,55,.12);border:1px solid rgba(255,101,55,.25);margin-bottom:6px}
+.stage .icn svg{width:22px;height:22px;color:var(--ember)}
+.codebox{
+  margin-top:16px;background:var(--canvas-deep);border:1px solid var(--hair);border-radius:12px;
+  padding:12px 13px;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.65;color:var(--muted);
+  overflow-x:auto;
+}
+.codebox .kv{color:var(--text)}.codebox .g{color:var(--green)}.codebox .r{color:var(--red)}.codebox .c{color:var(--cobalt)}.codebox .o{color:var(--ember)}.codebox .cm{color:var(--subtle)}
+.flow-line{display:flex;align-items:center;gap:12px;margin-top:8px;color:var(--subtle);font-size:12px;letter-spacing:.1em}
+.pipe-guarantee{margin-top:20px;display:inline-flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);border:1px solid rgba(98,217,154,.25);background:rgba(98,217,154,.06);border-radius:12px;padding:10px 14px}
+.pipe-guarantee .k{color:var(--green);font-weight:700;font-family:ui-monospace,monospace}
+
+/* ---------- MUSCLE LIST ---------- */
+.muscle-list{display:flex;flex-direction:column;gap:8px}
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:var(--surface);border:1px solid var(--hair-2)}
+.mrow .name{font-size:14.5px;font-weight:550}
+.mrow .right{display:flex;align-items:center;gap:10px}
+.anchor{font-family:ui-monospace,monospace;font-size:11px;color:var(--subtle)}
+.mchip{font-size:11px;font-weight:650;letter-spacing:.04em;padding:4px 10px;border-radius:999px;text-transform:uppercase}
+.mchip.red{color:var(--red);background:rgba(255,91,84,.12);border:1px solid rgba(255,91,84,.3)}
+.mchip.green{color:var(--green);background:rgba(98,217,154,.12);border:1px solid rgba(98,217,154,.3)}
+.mchip.gray{color:var(--subtle);background:rgba(127,133,126,.12);border:1px solid rgba(127,133,126,.28)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:9px;height:9px;border-radius:3px}
+.anchors{margin-top:18px;display:flex;gap:6px;flex-wrap:wrap}
+.anchors b{font-family:ui-monospace,monospace;font-size:11px;color:var(--muted);border:1px solid var(--hair);border-radius:7px;padding:4px 8px}
+.anchors b.hi{color:var(--ember);border-color:rgba(255,101,55,.4)}
+
+/* ---------- SCORE BADGE ---------- */
+.score-wrap{display:grid;grid-template-columns:auto 1fr;gap:34px;align-items:center}
+@media(max-width:620px){.score-wrap{grid-template-columns:1fr;gap:24px;justify-items:center;text-align:center}}
+.dial{position:relative;width:210px;height:210px}
+.dial .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dial .num b{font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.dial .num span{font-size:11px;color:var(--subtle);letter-spacing:.2em;text-transform:uppercase;margin-top:6px}
+.weights{display:flex;flex-direction:column;gap:14px;width:100%;max-width:420px}
+.wrow{display:flex;flex-direction:column;gap:6px}
+.wrow .top{display:flex;justify-content:space-between;font-size:13px}
+.wrow .top b{color:var(--text);font-weight:600}
+.wrow .top em{font-style:normal;color:var(--muted);font-family:ui-monospace,monospace}
+.bar{height:8px;border-radius:999px;background:var(--soft);overflow:hidden;border:1px solid var(--hair-2)}
+.bar i{display:block;height:100%;border-radius:999px}
+
+/* ---------- VERDICT CARD ---------- */
+.verdict{max-width:640px;margin:0 auto;position:relative}
+.verdict .vc{padding:30px 30px 26px;position:relative;overflow:hidden}
+.verdict .quote{font-size:clamp(19px,3vw,25px);line-height:1.4;letter-spacing:-.01em;font-weight:550}
+.verdict .quote .hl{color:var(--ember)}
+.verdict .vmeta{display:flex;align-items:center;gap:10px;margin-top:22px;font-size:12px;color:var(--subtle)}
+.verdict .vmeta .wc{margin-left:auto;font-family:ui-monospace,monospace;color:var(--green)}
+.verdict-rules{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;justify-content:center}
+.verdict-rules b{font-size:11.5px;color:var(--muted);border:1px solid var(--hair);border-radius:999px;padding:6px 12px;font-weight:500}
+
+/* ---------- BODYFAT / conditioning ---------- */
+.bf-scale{position:relative;height:64px;margin:18px 0 8px}
+.bf-track{position:absolute;top:26px;left:0;right:0;height:10px;border-radius:999px;
+  background:linear-gradient(90deg,var(--green),var(--gold) 55%,var(--red));opacity:.85}
+.bf-range{position:absolute;top:20px;height:22px;border-radius:6px;border:2px solid var(--text);background:rgba(244,241,234,.14);backdrop-filter:blur(2px)}
+.bf-range .lab{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-family:ui-monospace,monospace;font-size:13px;color:var(--text);white-space:nowrap}
+.bf-ticks{position:absolute;top:44px;left:0;right:0;display:flex;justify-content:space-between;font-size:10px;color:var(--subtle);font-family:ui-monospace,monospace}
+.target-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:520px){.target-row{grid-template-columns:1fr}}
+.target{background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:14px}
+.target .l{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--subtle)}
+.target .v{font-size:22px;font-weight:650;margin-top:6px}
+.target .v small{font-size:13px;color:var(--muted);font-weight:400}
+
+/* ---------- 6 WEEK PLAN ---------- */
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.plan-grid{grid-template-columns:1fr}}
+.priority{background:linear-gradient(180deg,var(--raised),var(--surface));border:1px solid rgba(255,91,84,.28);border-radius:18px;padding:18px}
+.priority .rank{font-family:ui-monospace,monospace;font-size:11px;color:var(--red);letter-spacing:.2em}
+.priority h4{font-size:20px;margin:8px 0 4px}
+.priority .why{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.lifts{display:flex;flex-wrap:wrap;gap:8px}
+.lift{font-size:12px;color:var(--text);background:var(--soft);border:1px solid var(--hair);border-radius:10px;padding:8px 11px;display:inline-flex;align-items:center;gap:8px;transition:transform .2s var(--ease),border-color .2s}
+.lift:hover{transform:translateY(-2px);border-color:rgba(255,101,55,.4)}
+.lift .d{width:6px;height:6px;border-radius:2px;background:var(--ember)}
+.plan-meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.plan-meta b{color:var(--text)}
+.library-note{margin-top:16px;font-size:12px;color:var(--subtle)}
+
+/* ---------- RETAKE / quality gate ---------- */
+.retake{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+@media(max-width:560px){.retake{grid-template-columns:1fr}}
+.badphoto{width:150px;aspect-ratio:3/4;border-radius:16px;overflow:hidden;position:relative;border:1px solid rgba(211,170,99,.4);background:var(--soft);margin:0 auto}
+.badphoto .blur{position:absolute;inset:0;filter:blur(3px) brightness(.6)}
+.badphoto .warn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(211,170,99,.14)}
+.badphoto .warn svg{width:36px;height:36px;color:var(--gold)}
+.badphoto .lab{position:absolute;bottom:8px;left:8px;right:8px;text-align:center;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.retake-list{display:flex;flex-direction:column;gap:10px}
+.rt{display:flex;gap:12px;align-items:flex-start;font-size:13.5px;color:var(--text)}
+.rt .g{flex:0 0 auto;width:22px;height:22px;border-radius:7px;background:rgba(211,170,99,.14);border:1px solid rgba(211,170,99,.35);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-family:ui-monospace,monospace;font-weight:700}
+.rt small{color:var(--muted);display:block;margin-top:2px;font-size:12px}
+.gate-note{margin-top:16px;font-size:12.5px;color:var(--gold);display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(211,170,99,.3);border-radius:10px;padding:9px 13px;background:rgba(211,170,99,.06)}
+
+/* ---------- CARD DECK HISTORY (big) ---------- */
+.history{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(30px,6vw,64px);align-items:center}
+@media(max-width:860px){.history{grid-template-columns:1fr}}
+.timeline{display:flex;flex-direction:column;gap:2px;position:relative;padding-left:22px}
+.timeline::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:linear-gradient(var(--ember),var(--hair))}
+.tl{position:relative;padding:12px 0}
+.tl::before{content:"";position:absolute;left:-21px;top:17px;width:11px;height:11px;border-radius:50%;background:var(--canvas);border:2px solid var(--ember)}
+.tl.old::before{border-color:var(--subtle)}
+.tl .d{font-family:ui-monospace,monospace;font-size:11px;color:var(--subtle)}
+.tl .s{display:flex;align-items:baseline;gap:10px;margin-top:3px}
+.tl .s b{font-size:19px;font-weight:650}
+.tl .s em{font-style:normal;font-size:12px}
+.tl .up{color:var(--green)}.tl .flat{color:var(--muted)}
+.append-note{margin-top:20px;font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:9px}
+.append-note b{color:var(--ember)}
+
+/* ---------- BYOK ---------- */
+.byok{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.byok{grid-template-columns:1fr}}
+.byok .opt{padding:22px;position:relative;overflow:hidden}
+.byok .opt .tier{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--subtle)}
+.byok .opt h4{font-size:22px;margin:10px 0 8px}
+.byok .opt p{font-size:13.5px;color:var(--muted);line-height:1.6}
+.byok .opt .price{font-family:ui-monospace,monospace;font-size:13px;margin-top:14px;padding-top:14px;border-top:1px solid var(--hair);color:var(--text)}
+.byok .opt.paid{border-color:rgba(255,101,55,.3)}
+.byok .opt.paid .tier{color:var(--ember)}
+.byok .opt.free{border-color:rgba(98,217,154,.28)}
+.byok .opt.free .tier{color:var(--green)}
+.keyfield{margin-top:14px;display:flex;align-items:center;gap:8px;background:var(--canvas-deep);border:1px solid var(--hair);border-radius:11px;padding:11px 12px;font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)}
+.keyfield .dot3{letter-spacing:2px;color:var(--subtle)}
+.keyfield .lock{color:var(--green);margin-left:auto}
+
+/* ---------- OPEN SOURCE ---------- */
+.oss{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.oss{grid-template-columns:1fr}}
+.oss .way{padding:24px}
+.oss .way .num{font-family:ui-monospace,monospace;color:var(--ember);font-size:12px;letter-spacing:.2em}
+.oss .way h4{font-size:21px;margin:12px 0 8px}
+.oss .way p{font-size:13.5px;color:var(--muted);line-height:1.6}
+.promptbox{margin-top:16px;background:var(--canvas-deep);border:1px solid var(--hair);border-radius:12px;padding:14px;font-family:ui-monospace,monospace;font-size:11.5px;line-height:1.6;color:var(--muted);position:relative}
+.promptbox .lab{position:absolute;top:-9px;left:12px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle);background:var(--canvas);padding:0 8px}
+.promptbox .hl{color:var(--ember)}
+
+/* ---------- FINAL CTA ---------- */
+.final{
+  text-align:center;padding:clamp(90px,14vw,170px) 0;
+  background:radial-gradient(90% 90% at 50% 0%, rgba(255,71,32,.18), transparent 60%);
+}
+.final h2{font-size:clamp(36px,7vw,80px);letter-spacing:-.03em}
+.final p{margin:22px auto 0;max-width:46ch}
+.final .hero-cta{justify-content:center}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--hair-2);padding:40px 0 60px}
+.foot{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center;color:var(--subtle);font-size:12.5px}
+.foot a{color:var(--muted)}.foot a:hover{color:var(--ember)}
+.foot .mit{font-family:ui-monospace,monospace}
+
+/* section divider glow */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--hair),transparent);margin:0 auto;max-width:var(--maxw)}
+.tour-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle);margin-bottom:14px}
+.tour-tag .b{width:5px;height:5px;border-radius:50%;background:var(--ember)}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-  <header class="wrap hero">
-    <h1>PhysiqueMaxx</h1>
-    <p class="lead">An AI physique tracker, built in a day. Open source.</p>
-    <a class="btn" href="https://github.com/ohwisey/physiquemaxx-oss">View the code</a>
-  </header>
+<!-- ================= TOP BAR ================= -->
+<div class="topbar">
+  <a class="brand" href="#top" aria-label="PhysiqueMaxx home">
+    <svg class="glyph" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <rect x="2" y="2" width="36" height="36" rx="11" fill="#111311" stroke="rgba(244,241,234,.12)"/>
+      <path d="M11 27 V14 l5 6 4-5 4 5 5-6 V27" stroke="#ff6537" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="20" cy="30" r="1.6" fill="#ff6537"/>
+    </svg>
+    <span><b>Physique</b><span class="max">Maxx</span></span>
+  </a>
+  <div class="nav-actions">
+    <a class="pill-link hideable" href="#how">How it works</a>
+    <a class="pill-link hideable" href="#opensource">Open source</a>
+    <a class="btn btn-ember" href="https://github.com/ohwisey/physiquemaxx-oss" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.5-1.1-4.5-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .6 1.4.2 2.4.1 2.7.7.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.5 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 3.9-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2Z"/></svg>
+      View the code
+    </a>
+  </div>
+</div>
 
-  <main>
-    <section class="wrap">
-      <h2>The idea worth stealing</h2>
-      <p class="muted">Ask AI to "rate this" and it drifts. Same photo, different answer. Here is the fix.</p>
-      <div class="steps">
-        <div class="step">
-          <b><span class="num">1</span>See</b>
-          <p>The model looks at the photo. Nothing else. Just describe what is there.</p>
-        </div>
-        <div class="step">
-          <b><span class="num">2</span>Score against a fixed rubric</b>
-          <p>Grade every photo on the same written checklist, at temperature 0. Same input, same score, every time.</p>
-        </div>
-        <div class="step">
-          <b><span class="num">3</span>Narrate</b>
-          <p>Turn the numbers into plain, human feedback. What is working, what to do next.</p>
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="container hero-grid">
+    <div>
+      <span class="kicker reveal">AI Physique Tracker</span>
+      <h1 class="reveal d1">Four photos in.<br>An honest<br><span class="em">verdict</span> out.</h1>
+      <p class="lead hero-sub reveal d2">See where you actually stand. Muscle by muscle, scored the same way every time. No hype. No compliment sandwich.</p>
+      <div class="hero-meta reveal d2">
+        <span class="chip"><i class="dot" style="background:var(--ember)"></i> Built in a day</span>
+        <span class="chip"><i class="dot" style="background:var(--green)"></i> Open source, MIT</span>
+        <span class="chip"><i class="dot" style="background:var(--cobalt)"></i> Bring your own key</span>
+      </div>
+      <div class="hero-cta reveal d3">
+        <a class="btn btn-ember" href="https://github.com/ohwisey/physiquemaxx-oss" target="_blank" rel="noopener">Get the code</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <div class="scroll-hint reveal d4"><span class="line"></span> Scroll the tour</div>
+    </div>
+
+    <!-- PHONE with stacked deck -->
+    <div class="phone-stage reveal d2">
+      <div class="phone">
+        <div class="screen">
+          <div class="screen-top">
+            <span class="t">Your history</span>
+            <span class="s">Newest on top</span>
+          </div>
+          <div class="deck">
+            <!-- back cards -->
+            <div class="deck-card c4"><div class="cover"><div class="silhouette-bg"></div></div></div>
+            <div class="deck-card c3"><div class="cover"><div class="silhouette-bg"></div></div></div>
+            <div class="deck-card c2">
+              <div class="cover">
+                <div class="silhouette-bg"></div>
+                <div class="meta"><span class="date">Jul 02</span><span class="badge">71</span></div>
+              </div>
+            </div>
+            <!-- top card -->
+            <div class="deck-card c1">
+              <div class="cover">
+                <div class="silhouette-bg"></div>
+                <svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMax meet" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true">
+                  <defs><linearGradient id="silh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6537" stop-opacity=".55"/><stop offset="1" stop-color="#ff4720" stop-opacity=".1"/></linearGradient></defs>
+                  <path fill="url(#silh)" d="M60 18c7 0 12 5 12 12 0 5-2 8-2 8 6 3 14 9 16 20 2 9 3 16 8 22 3 4 0 8-4 6-4-2-8-6-10-10 1 12 2 22-2 34-2 6-3 12-2 20 1 4-6 5-8 1-2-5-3-11-4-18-1 7-2 13-4 18-2 4-9 3-8-1 1-8 0-14-2-20-4-12-3-22-2-34-2 4-6 8-10 10-4 2-7-2-4-6 5-6 6-13 8-22 2-11 10-17 16-20 0 0-2-3-2-8 0-7 5-12 12-12Z"/>
+                </svg>
+                <div class="meta"><span class="date">Aug 24</span><span class="badge" style="color:var(--ember);border-color:rgba(255,101,55,.4)">74</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="deck-nav"><i class="on"></i><i></i><i></i><i></i></div>
         </div>
       </div>
-      <p class="muted" style="margin-top:20px">Split the job in three and each part gets simple. That is what makes AI repeatable instead of random.</p>
-    </section>
+      <div class="float f1"><span class="k" style="color:var(--green)">+3</span> since last check-in</div>
+      <div class="float f2"><span class="k" style="color:var(--red)">Priority</span> rear delts</div>
+      <div class="float f3">Temp <span class="k" style="color:var(--cobalt)">0</span> · same in, same out</div>
+    </div>
+  </div>
+</header>
 
-    <section class="wrap">
-      <h2>What you get</h2>
-      <ul class="list">
-        <li><span class="tick">+</span><span>The full code. Every file, nothing held back.</span></li>
-        <li><span class="tick">+</span><span>A step-by-step README. Copy, paste, done.</span></li>
-        <li><span class="tick">+</span><span>The one master prompt. Build your own from scratch.</span></li>
-        <li><span class="tick">+</span><span>Deploy it yourself. Run your own copy.</span></li>
-      </ul>
-    </section>
+<div class="divider"></div>
 
-    <section class="wrap">
-      <h2>Bring your own key</h2>
-      <div class="note">
-        <p>Each analysis is a paid Claude call on your own Anthropic key.</p>
-        <p class="muted" style="margin:0">This is a codebase, not a hosted app. You run it, you hold the key, you pay for what you use. Prefer free? Swap in a free vision tier. The repo shows you how.</p>
+<!-- ================= 1 · FOUR PHOTO CHECK-IN ================= -->
+<section id="how">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 01</span>
+      <span class="kicker">Check in</span>
+      <h2>Four photos. That's the whole ritual.</h2>
+      <p class="lead">Front, back, left, right. Camera or gallery. Log for yourself, or for your training partner. It stays private to you.</p>
+    </div>
+
+    <div class="split">
+      <div class="reveal d1">
+        <div class="people-toggle" role="tablist" aria-label="Whose log">
+          <span class="active">You</span><span>Your partner</span>
+        </div>
+        <div class="card">
+          <div class="photo-grid">
+            <div class="pgrid-cell"><span class="tag">Front</span>
+              <div class="frame-fill silhouette-bg"></div>
+              <svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMax meet" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><path fill="rgba(244,241,234,.16)" d="M60 20c7 0 11 5 11 11 0 4-2 7-2 7 6 3 13 9 15 19 2 8 3 15 7 20 3 4-1 7-4 5-3-2-6-5-8-8 1 11 2 20-2 31-2 6-2 11-1 18 0 3-6 4-7 0-2-4-2-9-3-15-1 6-1 11-3 15-1 4-7 3-7 0 1-7 1-12-1-18-4-11-3-20-2-31-2 3-5 6-8 8-3 2-7-1-4-5 4-5 5-12 7-20 2-10 9-16 15-19 0 0-2-3-2-7 0-6 4-11 11-11Z"/></svg>
+              <span class="who">You</span>
+            </div>
+            <div class="pgrid-cell"><span class="tag">Back</span>
+              <div class="frame-fill silhouette-bg" style="background:linear-gradient(180deg,#101b22,#060a0c)"></div>
+              <svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMax meet" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><path fill="rgba(52,92,255,.22)" d="M60 20c7 0 11 5 11 11 0 4-2 7-2 7 7 4 14 10 16 21 2 9 2 15 6 20 3 4-1 7-4 5-3-2-6-6-8-9 2 12 2 21-2 32-2 6-2 11-1 17 0 3-6 4-7 0-1-4-2-9-3-14-1 5-2 10-3 14-1 4-7 3-7 0 1-6 1-11-1-17-4-11-4-20-2-32-2 3-5 7-8 9-3 2-7-1-4-5 4-5 4-11 6-20 2-11 9-17 16-21 0 0-2-3-2-7 0-6 4-11 11-11Z"/></svg>
+              <span class="who">You</span>
+            </div>
+            <div class="pgrid-cell"><span class="tag">Left</span>
+              <div class="frame-fill silhouette-bg" style="background:linear-gradient(180deg,#22140d,#0b0705)"></div>
+              <svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMax meet" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><path fill="rgba(255,101,55,.2)" d="M62 20c6 0 10 5 10 11 0 4-2 7-2 7 5 4 8 10 9 20 1 8 1 15 4 20 2 4-2 6-5 4-2-1-4-4-5-6 1 11 1 20-2 30-2 6-1 12 0 18 1 3-5 4-6 1-2-4-3-9-3-14-3 3-8 4-13 3-4-1-3-6 1-6 5-1 8-4 9-9 1-11 1-20 0-30-2 8-4 14-4 20 0 4-6 3-6-1 0-8 1-14 4-21 3-9 5-16 9-20 0 0-2-3-2-7 0-6 4-11 10-11Z"/></svg>
+              <span class="who">You</span>
+            </div>
+            <div class="pgrid-cell"><span class="tag">Right</span>
+              <div class="frame-fill silhouette-bg" style="background:linear-gradient(180deg,#1b1508,#0a0804)"></div>
+              <svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMax meet" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><path fill="rgba(211,170,99,.24)" d="M58 20c6 0 10 5 10 11 0 4-2 7-2 7 4 4 6 10 7 20 1 5 1 13 4 20 2 4-2 6-5 4-1-1-3-4-4-6 1 11 1 20-2 30-2 6-1 12 0 18 1 3-5 4-6 1-2-4-3-9-3-14-2 3-7 4-12 3-4-1-3-6 1-6 4-1 8-4 9-9 1-11 1-20 0-30-1 2-3 5-4 6-3 2-7 0-5-4 3-7 3-15 4-20 1-10 3-16 7-20 0 0-2-3-2-7 0-6 4-11 10-11Z"/></svg>
+              <span class="who">You</span>
+            </div>
+          </div>
+          <div class="src-row">
+            <div class="src">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg>
+              Take with camera
+            </div>
+            <div class="src">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 16l5-4 4 3 4-4 5 5"/><circle cx="8" cy="9" r="1.6"/></svg>
+              Pick from gallery
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
-  </main>
 
-  <footer class="wrap">
-    MIT licensed. Take it, change it, ship it.
-  </footer>
+      <div class="reveal d2">
+        <span class="step-index">Two people. One rule.</span>
+        <h3 style="font-size:clamp(24px,3.4vw,34px);margin:16px 0 14px">Private by default.</h3>
+        <p class="lead">Log yourself. Log your partner. Separate stacks, separate progress, nothing shared unless you decide to. The photos never leave your control.</p>
+        <div class="hero-meta">
+          <span class="chip"><i class="dot" style="background:var(--ember)"></i> Front · Back · Left · Right</span>
+          <span class="chip"><i class="dot" style="background:var(--green)"></i> Camera or gallery</span>
+          <span class="chip"><i class="dot" style="background:var(--cobalt)"></i> Two separate logs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<div class="divider"></div>
+
+<!-- ================= 2 · THE PIPELINE ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 02 · the real gold</span>
+      <span class="kicker">The 3-stage pipeline</span>
+      <h2>The model never gets to pick your score.</h2>
+      <p class="lead">Split the job in three. The AI describes. Plain code grades. The AI only writes it up. Same photos in, same number out.</p>
+    </div>
+
+    <div class="pipe">
+      <div class="stage card reveal d1">
+        <span class="n">STAGE A</span>
+        <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>See</h3>
+        <div class="role">Model · vision only</div>
+        <p>The model looks and describes. No opinions, no rating. It returns structured evidence as JSON, nothing else.</p>
+        <div class="codebox mono">
+<span class="cm">// pure observation</span><br>
+{ <span class="kv">"rear_delts"</span>: {<br>
+&nbsp;&nbsp;<span class="kv">"visible"</span>: <span class="c">true</span>,<br>
+&nbsp;&nbsp;<span class="kv">"separation"</span>: <span class="o">"low"</span>,<br>
+&nbsp;&nbsp;<span class="kv">"fullness"</span>: <span class="o">"flat"</span> } }
+        </div>
+      </div>
+
+      <div class="stage card reveal d2">
+        <span class="n">STAGE B</span>
+        <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v4H4zM4 12h10v4H4zM4 20h6"/><path d="M18 12v8M15 17l3 3 3-3"/></svg></div>
+        <h3>Score</h3>
+        <div class="role">Code · temperature 0</div>
+        <p>Plain code grades that evidence against a fixed rubric. No model in this step. Deterministic. Same input maps to the same score, every run.</p>
+        <div class="codebox mono">
+<span class="cm"># fixed rubric, no LLM</span><br>
+score = <span class="c">rubric</span>[muscle]<br>
+&nbsp;&nbsp;.grade(evidence)<br>
+<span class="cm"># rear_delts →</span> <span class="r">A1 (weak)</span><br>
+<span class="cm"># same photos → same</span> <span class="o">74</span>
+        </div>
+      </div>
+
+      <div class="stage card reveal d3">
+        <span class="n">STAGE C</span>
+        <div class="icn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h11M4 20h7"/></svg></div>
+        <h3>Narrate</h3>
+        <div class="role">Model · words only</div>
+        <p>Now the model writes the verdict, from the numbers only. It reads the score. It cannot invent one. It just says it straight.</p>
+        <div class="codebox mono">
+<span class="cm">// input = numbers, not photos</span><br>
+verdict(<span class="o">74</span>, [<br>
+&nbsp;&nbsp;<span class="r">"rear_delts: weak"</span>,<br>
+&nbsp;&nbsp;<span class="g">"quads: strong"</span> ])<br>
+<span class="cm">// → 32 words, one action</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal d2">
+      <div class="flow-line" style="justify-content:center;margin-top:26px">
+        <b class="mono" style="color:var(--ember)">SEE</b> <span>→</span> <b class="mono" style="color:var(--ember)">SCORE</b> <span>→</span> <b class="mono" style="color:var(--ember)">NARRATE</b>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:16px">
+        <div class="pipe-guarantee"><span class="k">temp 0</span> The words can flatter. The number cannot move.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 3 · MUSCLE RATING ================= -->
+<section>
+  <div class="container">
+    <div class="split">
+      <div class="reveal">
+        <span class="tour-tag"><span class="b"></span> The tour · 03</span>
+        <span class="kicker">Muscle by muscle</span>
+        <h2 style="font-size:clamp(28px,4.4vw,44px);margin-top:14px">Red means fix it.<br>Green means keep it.</h2>
+        <p class="lead" style="margin-top:16px">Every muscle gets one honest tag. Weak and priority in red, strong in green, gray when the photo can't show it. Graded on anchors A0 to A4.</p>
+        <div class="legend">
+          <span><i style="background:var(--red)"></i> Weak · priority</span>
+          <span><i style="background:var(--green)"></i> Strong</span>
+          <span><i style="background:var(--subtle)"></i> Not assessable</span>
+        </div>
+        <div class="anchors">
+          <b>A0 absent</b><b class="hi">A1 weak</b><b>A2 developing</b><b>A3 solid</b><b>A4 elite</b>
+        </div>
+      </div>
+
+      <div class="reveal d2">
+        <div class="card">
+          <div class="muscle-list">
+            <div class="mrow"><span class="name">Quads</span><span class="right"><span class="anchor">A3</span><span class="mchip green">Strong</span></span></div>
+            <div class="mrow"><span class="name">Chest</span><span class="right"><span class="anchor">A2</span><span class="mchip green">Strong</span></span></div>
+            <div class="mrow"><span class="name">Rear delts</span><span class="right"><span class="anchor">A1</span><span class="mchip red">Weak</span></span></div>
+            <div class="mrow"><span class="name">Upper back</span><span class="right"><span class="anchor">A2</span><span class="mchip green">Strong</span></span></div>
+            <div class="mrow"><span class="name">Calves</span><span class="right"><span class="anchor">A1</span><span class="mchip red">Weak</span></span></div>
+            <div class="mrow"><span class="name">Biceps</span><span class="right"><span class="anchor">A2</span><span class="mchip green">Strong</span></span></div>
+            <div class="mrow"><span class="name">Hamstrings</span><span class="right"><span class="anchor">—</span><span class="mchip gray">No angle</span></span></div>
+            <div class="mrow"><span class="name">Abs</span><span class="right"><span class="anchor">A2</span><span class="mchip green">Strong</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 4 · OVERALL SCORE ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 04</span>
+      <span class="kicker">The number</span>
+      <h2>One score, 0 to 100. And exactly how it's built.</h2>
+    </div>
+
+    <div class="card reveal d1">
+      <div class="score-wrap">
+        <div class="dial">
+          <svg viewBox="0 0 220 220" style="width:100%;height:100%" aria-hidden="true">
+            <defs>
+              <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6537"/><stop offset="1" stop-color="#ff4720"/></linearGradient>
+            </defs>
+            <circle cx="110" cy="110" r="92" fill="none" stroke="rgba(244,241,234,.08)" stroke-width="14"/>
+            <circle cx="110" cy="110" r="92" fill="none" stroke="url(#ring)" stroke-width="14" stroke-linecap="round"
+              stroke-dasharray="578" stroke-dashoffset="150" transform="rotate(-90 110 110)"/>
+          </svg>
+          <div class="num"><b>74</b><span>Overall</span></div>
+        </div>
+        <div class="weights">
+          <div class="wrow"><div class="top"><b>Development</b><em>50%</em></div><div class="bar"><i style="width:100%;background:linear-gradient(90deg,var(--ember),var(--ember-hot))"></i></div></div>
+          <div class="wrow"><div class="top"><b>Proportion</b><em>25%</em></div><div class="bar"><i style="width:50%;background:var(--gold)"></i></div></div>
+          <div class="wrow"><div class="top"><b>Symmetry</b><em>15%</em></div><div class="bar"><i style="width:30%;background:var(--cobalt)"></i></div></div>
+          <div class="wrow"><div class="top"><b>Conditioning</b><em>10%</em></div><div class="bar"><i style="width:20%;background:var(--green)"></i></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="lead reveal d2" style="margin-top:22px">Development carries the most weight, because size is what you built. Proportion, symmetry and conditioning shape the rest. Nothing hidden.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 5 · VERDICT ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal" style="text-align:center;margin:0 auto clamp(30px,5vw,50px)">
+      <span class="tour-tag" style="justify-content:center"><span class="b"></span> The tour · 05</span>
+      <span class="kicker" style="justify-content:center">The verdict</span>
+      <h2>Under 35 words. Every criticism ends with an action.</h2>
+    </div>
+
+    <div class="verdict reveal d1">
+      <div class="card vc">
+        <p class="quote">Solid base. Quads and chest carry you. <span class="hl">Rear delts and calves are behind</span> and they flatten your side profile. Push rear-delt and standing calf volume for six weeks, then reshoot.</p>
+        <div class="vmeta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+          Written from the numbers only
+          <span class="wc">32 words</span>
+        </div>
+      </div>
+      <div class="verdict-rules">
+        <b>No fluff</b><b>No compliment sandwich</b><b>Evidence based</b><b>Action on every flaw</b><b>Direct</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 6 · BODYFAT + CONDITIONING ================= -->
+<section>
+  <div class="container">
+    <div class="split">
+      <div class="reveal">
+        <span class="tour-tag"><span class="b"></span> The tour · 06</span>
+        <span class="kicker">Body fat & conditioning</span>
+        <h2 style="font-size:clamp(28px,4.4vw,44px);margin-top:14px">A range, not a fake decimal.</h2>
+        <p class="lead" style="margin-top:16px">An estimated body-fat range from the photos, plus the two things that move it: a cardio target and a goal weight to aim at.</p>
+      </div>
+      <div class="reveal d2">
+        <div class="card">
+          <div class="eyebrow">Estimated body fat</div>
+          <div class="bf-scale">
+            <div class="bf-track"></div>
+            <div class="bf-range" style="left:34%;width:14%"><span class="lab">14–17%</span></div>
+            <div class="bf-ticks"><span>8%</span><span>15%</span><span>22%</span><span>30%+</span></div>
+          </div>
+          <div class="target-row">
+            <div class="target"><div class="l">Cardio target</div><div class="v">3× <small>/ week, 25 min zone 2</small></div></div>
+            <div class="target"><div class="l">Goal weight</div><div class="v">−4 kg <small>over 8 wks</small></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 7 · SIX WEEK PLAN ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 07</span>
+      <span class="kicker">Six-week plan</span>
+      <h2>Your two weakest muscles. Real lifts to fix them.</h2>
+      <p class="lead">Picked straight from your red tags. Exercises pulled from a 30-lift library. No guesswork, no generic split.</p>
+    </div>
+
+    <div class="plan-grid">
+      <div class="priority reveal d1">
+        <span class="rank">PRIORITY 01</span>
+        <h4>Rear delts</h4>
+        <div class="why">Graded A1 · flattens your side and back profile</div>
+        <div class="lifts">
+          <span class="lift"><i class="d"></i> Reverse pec deck</span>
+          <span class="lift"><i class="d"></i> Cable rope face pull</span>
+          <span class="lift"><i class="d"></i> Seated rear-delt raise</span>
+        </div>
+      </div>
+      <div class="priority reveal d2">
+        <span class="rank">PRIORITY 02</span>
+        <h4>Calves</h4>
+        <div class="why">Graded A1 · lagging vs quads</div>
+        <div class="lifts">
+          <span class="lift"><i class="d"></i> Standing calf raise</span>
+          <span class="lift"><i class="d"></i> Seated calf raise</span>
+          <span class="lift"><i class="d"></i> Leg-press calf press</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal d2">
+      <div class="plan-meta">
+        <span><b>30-lift</b> library</span>
+        <span>flat barbell bench press</span>
+        <span>high bar back squat</span>
+        <span>barbell romanian deadlift</span>
+        <span>incline dumbbell press</span>
+        <span>cable rope pressdown</span>
+      </div>
+      <p class="library-note">Every lift maps to the muscle it grows. The plan only ever pulls the ones your red tags need.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 8 · RETAKE GUIDANCE ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 08</span>
+      <span class="kicker">Quality gate</span>
+      <h2>A bad photo gets instructions. Never a fake score.</h2>
+      <p class="lead">If an angle can't be graded honestly, it won't be. You get exact fixes for that shot, then you retake it.</p>
+    </div>
+
+    <div class="card reveal d1">
+      <div class="retake">
+        <div>
+          <div class="badphoto">
+            <div class="blur silhouette-bg" style="background:linear-gradient(180deg,#221a10,#0a0806)"></div>
+            <div class="warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v5M12 18h.01"/></svg></div>
+            <span class="lab">Back · can't grade</span>
+          </div>
+        </div>
+        <div>
+          <div class="eyebrow" style="margin-bottom:14px">Fix these, then reshoot the back</div>
+          <div class="retake-list">
+            <div class="rt"><span class="g">1</span><div>Step back so your full torso is in frame.<small>Shoulders and lower back are cut off.</small></div></div>
+            <div class="rt"><span class="g">2</span><div>Turn up the lighting or face a window.<small>Too dark to read separation.</small></div></div>
+            <div class="rt"><span class="g">3</span><div>Arms relaxed at your sides.<small>Flexed arms hide the lats.</small></div></div>
+          </div>
+          <div class="gate-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/></svg>
+            No score beats a wrong score.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 9 · CARD DECK HISTORY ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 09</span>
+      <span class="kicker">Your history</span>
+      <h2>A deck of check-ins. Newest on top. Append only.</h2>
+      <p class="lead">Every check-in becomes a card. The front photo is the cover. Nothing gets overwritten, so you can watch yourself change over time.</p>
+    </div>
+
+    <div class="history">
+      <div class="phone-stage reveal d1" style="perspective:1400px">
+        <div class="phone" style="transform:rotateY(12deg) rotateX(5deg)">
+          <div class="screen">
+            <div class="screen-top"><span class="t">The deck</span><span class="s">6 check-ins</span></div>
+            <div class="deck">
+              <div class="deck-card c4"><div class="cover"><div class="silhouette-bg" style="background:linear-gradient(180deg,#181818,#080808)"></div></div></div>
+              <div class="deck-card c3"><div class="cover"><div class="silhouette-bg" style="background:linear-gradient(180deg,#101b22,#060a0c)"></div></div></div>
+              <div class="deck-card c2"><div class="cover"><div class="silhouette-bg" style="background:linear-gradient(180deg,#1b1508,#0a0804)"></div><div class="meta"><span class="date">Jun 10</span><span class="badge">68</span></div></div></div>
+              <div class="deck-card c1"><div class="cover">
+                <div class="silhouette-bg"></div>
+                <svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMax meet" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><path fill="url(#silh)" d="M60 18c7 0 12 5 12 12 0 5-2 8-2 8 6 3 14 9 16 20 2 9 3 16 8 22 3 4 0 8-4 6-4-2-8-6-10-10 1 12 2 22-2 34-2 6-3 12-2 20 1 4-6 5-8 1-2-5-3-11-4-18-1 7-2 13-4 18-2 4-9 3-8-1 1-8 0-14-2-20-4-12-3-22-2-34-2 4-6 8-10 10-4 2-7-2-4-6 5-6 6-13 8-22 2-11 10-17 16-20 0 0-2-3-2-8 0-7 5-12 12-12Z"/></svg>
+                <div class="meta"><span class="date">Aug 24</span><span class="badge" style="color:var(--ember);border-color:rgba(255,101,55,.4)">74</span></div>
+              </div></div>
+            </div>
+            <div class="deck-nav"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal d2">
+        <div class="timeline">
+          <div class="tl"><div class="d">AUG 24 · latest</div><div class="s"><b>74</b><em class="up">▲ +3</em><em class="flat">rear delts still priority</em></div></div>
+          <div class="tl"><div class="d">JUL 30</div><div class="s"><b>71</b><em class="up">▲ +2</em><em class="flat">calves improving</em></div></div>
+          <div class="tl old"><div class="d">JUL 02</div><div class="s"><b>69</b><em class="flat">▲ +1</em></div></div>
+          <div class="tl old"><div class="d">JUN 10</div><div class="s"><b>68</b><em class="flat">baseline</em></div></div>
+        </div>
+        <div class="append-note">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span><b>Append only.</b> Old cards never change. Progress you can actually trust.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 10 · BYOK ================= -->
+<section>
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 10</span>
+      <span class="kicker">Bring your own key</span>
+      <h2>Each analysis runs on your key. Your call, your cost.</h2>
+      <p class="lead">No middleman, no markup, no server holding your photos. Pay Claude directly for the good vision, or run it free on a vision tier like Google AI Studio.</p>
+    </div>
+
+    <div class="byok">
+      <div class="opt paid card reveal d1">
+        <div class="tier">Paid · best quality</div>
+        <h4>Your Claude key</h4>
+        <p>Each check-in is one Claude vision call, billed to you at cost. The sharpest reads, straight from the source.</p>
+        <div class="keyfield"><span>sk-ant-</span><span class="dot3">••••••••••••</span><span class="lock">🔒 local</span></div>
+        <div class="price">~ pennies per analysis · pay Anthropic directly</div>
+      </div>
+      <div class="opt free card reveal d2">
+        <div class="tier">Free option</div>
+        <h4>A free vision tier</h4>
+        <p>Swap the key for a free vision model like Google AI Studio. Same pipeline, zero cost, slightly softer reads.</p>
+        <div class="keyfield"><span>AIza</span><span class="dot3">••••••••••••</span><span class="lock">🔒 local</span></div>
+        <div class="price">free tier · same three-stage pipeline</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ================= 11 · OPEN SOURCE ================= -->
+<section id="opensource">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="tour-tag"><span class="b"></span> The tour · 11</span>
+      <span class="kicker">Open source · MIT</span>
+      <h2>Take the code. Or take the prompt and grow your own.</h2>
+      <p class="lead">It was built in a day. The rubric and the pipeline are the gold, and both are yours. Two ways in.</p>
+    </div>
+
+    <div class="oss">
+      <div class="way card reveal d1">
+        <span class="num">WAY 01</span>
+        <h4>Clone the whole thing</h4>
+        <p>Full source, MIT licensed. Fork it, run it, change the rubric, ship your own. No strings.</p>
+        <a class="btn btn-ember" style="margin-top:16px" href="https://github.com/ohwisey/physiquemaxx-oss" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.5-1.1-4.5-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .6 1.4.2 2.4.1 2.7.7.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.5 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 3.9-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2Z"/></svg>
+          github.com/ohwisey/physiquemaxx-oss
+        </a>
+      </div>
+      <div class="way card reveal d2">
+        <span class="num">WAY 02</span>
+        <h4>Paste one master prompt</h4>
+        <p>Hand the master prompt to an AI and have it build your own version from scratch. The whole idea, portable.</p>
+        <div class="promptbox mono">
+          <span class="lab">master prompt</span>
+          Build a physique tracker. <span class="hl">Three stages:</span> a vision model returns evidence as JSON, plain code grades it against a fixed rubric at temp 0, a model writes a verdict under 35 words from the numbers only. Score 0–100: development 50, proportion 25, symmetry 15, conditioning 10…
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="final">
+  <div class="container">
+    <div class="reveal">
+      <span class="kicker" style="justify-content:center">Ready when you are</span>
+      <h2 style="margin-top:18px">Stop guessing.<br>Start scoring.</h2>
+      <p class="lead" style="color:var(--muted)">Four photos. An honest number. A six-week fix. Built in a day, open for everyone.</p>
+      <div class="hero-cta">
+        <a class="btn btn-ember" href="https://github.com/ohwisey/physiquemaxx-oss" target="_blank" rel="noopener">View the code</a>
+        <a class="btn btn-ghost" href="#top">Back to top</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container foot">
+    <a class="brand" href="#top"><svg class="glyph" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="11" fill="#111311" stroke="rgba(244,241,234,.12)"/><path d="M11 27 V14 l5 6 4-5 4 5 5-6 V27" stroke="#ff6537" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Physique</b><span class="max">Maxx</span></span></a>
+    <span>An AI physique tracker. Built in a day.</span>
+    <span class="mit">MIT · <a href="https://github.com/ohwisey/physiquemaxx-oss" target="_blank" rel="noopener">ohwisey/physiquemaxx-oss</a></span>
+  </div>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in')});
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  }, {threshold:0.14, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
 </body>
 </html>
