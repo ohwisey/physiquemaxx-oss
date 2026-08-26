@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhysiqueMaxx</title>
+<style>
+  :root{
+    --bg:#0b0d10;
+    --panel:#12151a;
+    --line:#22272f;
+    --text:#e8ebef;
+    --muted:#9aa3af;
+    --accent:#7fe0c2;
+    --accent-ink:#04120d;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  section{padding:56px 0;border-top:1px solid var(--line)}
+  h1{font-size:44px;line-height:1.1;margin:0 0 14px;letter-spacing:-0.5px}
+  h2{font-size:22px;margin:0 0 20px;letter-spacing:-0.2px}
+  p{margin:0 0 14px;color:var(--text)}
+  .muted{color:var(--muted)}
+
+  .hero{padding:88px 0 64px;border-top:none}
+  .lead{font-size:19px;color:var(--muted);margin-bottom:28px}
+  .btn{
+    display:inline-block;
+    background:var(--accent);
+    color:var(--accent-ink);
+    font-weight:600;
+    padding:12px 20px;
+    border-radius:10px;
+  }
+  .btn:hover{opacity:.9}
+
+  .steps{display:grid;gap:14px;margin-top:8px}
+  .step{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:7px;
+    background:var(--accent);color:var(--accent-ink);
+    font-weight:700;font-size:14px;margin-right:10px;
+  }
+  .step b{font-size:16px}
+  .step p{margin:8px 0 0;color:var(--muted)}
+
+  ul.list{list-style:none;padding:0;margin:10px 0 0}
+  ul.list li{
+    padding:12px 0;border-bottom:1px solid var(--line);
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  ul.list li:last-child{border-bottom:none}
+  .tick{color:var(--accent);font-weight:700;flex:0 0 auto}
+
+  .note{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    border-radius:10px;
+    padding:18px 18px;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:28px 0 48px;
+    color:var(--muted);
+    font-size:14px;
+  }
+</style>
+</head>
+<body>
+
+  <header class="wrap hero">
+    <h1>PhysiqueMaxx</h1>
+    <p class="lead">An AI physique tracker, built in a day. Open source.</p>
+    <a class="btn" href="https://github.com/ohwisey/physiquemaxx-oss">View the code</a>
+  </header>
+
+  <main>
+    <section class="wrap">
+      <h2>The idea worth stealing</h2>
+      <p class="muted">Ask AI to "rate this" and it drifts. Same photo, different answer. Here is the fix.</p>
+      <div class="steps">
+        <div class="step">
+          <b><span class="num">1</span>See</b>
+          <p>The model looks at the photo. Nothing else. Just describe what is there.</p>
+        </div>
+        <div class="step">
+          <b><span class="num">2</span>Score against a fixed rubric</b>
+          <p>Grade every photo on the same written checklist, at temperature 0. Same input, same score, every time.</p>
+        </div>
+        <div class="step">
+          <b><span class="num">3</span>Narrate</b>
+          <p>Turn the numbers into plain, human feedback. What is working, what to do next.</p>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:20px">Split the job in three and each part gets simple. That is what makes AI repeatable instead of random.</p>
+    </section>
+
+    <section class="wrap">
+      <h2>What you get</h2>
+      <ul class="list">
+        <li><span class="tick">+</span><span>The full code. Every file, nothing held back.</span></li>
+        <li><span class="tick">+</span><span>A step-by-step README. Copy, paste, done.</span></li>
+        <li><span class="tick">+</span><span>The one master prompt. Build your own from scratch.</span></li>
+        <li><span class="tick">+</span><span>Deploy it yourself. Run your own copy.</span></li>
+      </ul>
+    </section>
+
+    <section class="wrap">
+      <h2>Bring your own key</h2>
+      <div class="note">
+        <p>Each analysis is a paid Claude call on your own Anthropic key.</p>
+        <p class="muted" style="margin:0">This is a codebase, not a hosted app. You run it, you hold the key, you pay for what you use. Prefer free? Swap in a free vision tier. The repo shows you how.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    MIT licensed. Take it, change it, ship it.
+  </footer>
+
+</body>
+</html>
