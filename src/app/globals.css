@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  /* PM semantic tokens — binding values from VISUAL_MOTION_AND_STATE_SPEC §2 */
+  --color-canvas: #070807;
+  --color-canvas-deep: #040504;
+  --color-surface: #111311;
+  --color-surface-raised: #171917;
+  --color-surface-soft: #1d201d;
+  --color-paper: #f3efe6;
+  --color-paper-ink: #151713;
+  --color-text: #f4f1ea;
+  --color-text-muted: #a1a69f;
+  --color-text-subtle: #7f857e;
+  --color-ember: #ff6537;
+  --color-ember-hot: #ff4720;
+  --color-positive: #62d99a;
+  --color-priority: #ff5b54;
+  --color-limited: #d3aa63;
+
+  /* legacy aliases (pre-redesign components) — keep mapped to new system */
+  --color-ink: #070807;
+  --color-raised: #111311;
+  --color-bone: #f4f1ea;
+  --color-bone-warm: #f3efe6;
+  --color-mute: #a1a69f;
+  --color-strength: #62d99a;
+  --color-cobalt: #345cff;
+
+  --font-display: var(--font-anton), "Arial Narrow", "Impact", sans-serif;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+:root {
+  --pm-border: rgba(244, 241, 234, 0.1);
+  --pm-border-strong: rgba(244, 241, 234, 0.18);
+  --pm-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --pm-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-text);
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* one consistent focus treatment everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-ember);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* static grain (1.5% opacity) + soft vignette — never animated */
+.pm-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.pm-vignette::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(120% 100% at 50% 40%, transparent 55%, rgba(4, 5, 4, 0.5) 100%);
+}
+
+/* Full-height app surface */
+html,
+body {
+  height: 100%;
+}
+
+::selection {
+  background: rgba(243, 241, 237, 0.16);
+}
+
+/* The giant condensed masthead */
+.masthead {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Micro metadata */
+.micro {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.micro-11 {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Card surface finish */
+.card-finish {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 24px 60px -12px rgba(0, 0, 0, 0.75),
+    0 8px 24px -8px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

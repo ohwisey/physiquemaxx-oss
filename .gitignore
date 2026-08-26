@@ -1,0 +1,36 @@
+# deps
+node_modules/
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# local env — server secrets; never commit (your security setup §7)
+.env*
+
+# vercel
+.vercel
+
+# misc
+.DS_Store
+*.tsbuildinfo
+coverage/
+
+# large reference media stays local (frames are committed, video is not)
+references/reference-video.mov
+
+# supabase local artifacts
+supabase/.temp/
+
+# seed fixtures are local-only demo assets — never deploy physique photos
+public/seed/
+
+# recovery: local-only recovered image bytes (never commit physique photos).
+# The recover-2026-08-26.mjs script + README ARE committed; the images are not.
+recovery/v3-objects/
+recovery/*.jpg
+recovery/*.jpeg
+recovery/*.png
+
+!.env.example

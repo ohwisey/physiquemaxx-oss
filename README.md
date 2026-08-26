@@ -1,0 +1,83 @@
+# physiquemaxx-oss
+
+An AI physique tracker, built in a day. 4 photos in, muscle-by-muscle rating out.
+
+You upload front, back, left, right. It scores development, proportion, symmetry and conditioning, then writes you a short, honest read.
+
+## Two ways to have it
+
+1. **Take the code.** Clone this repo, follow Setup, deploy your own copy.
+2. **Build it from one prompt.** Paste the prompt in [docs/THE_MASTER_PROMPT.md](docs/THE_MASTER_PROMPT.md) into an AI coding agent and let it build your own version. That one prompt is how this whole app started.
+
+Either way it is yours. Change it, rebrand it, ship it.
+
+## The idea worth stealing
+
+The hard part of AI is that it wanders. Ask the same question twice, get two answers. This repo fixes that with a 3-stage pattern.
+
+**1. See.** The vision model only looks. It reports what is visible in each photo: which muscles show, how clear the shot is, how confident it is. No scores. No opinions. Just evidence.
+
+**2. Score.** Plain code, no AI, takes that evidence and grades it against a fixed rubric at temperature 0. Same evidence in, same numbers out. Every time. The scoring lives in `src/lib/analysis/scoring.ts` and the rubric it grades against lives in `src/lib/analysis/rubric.ts`.
+
+**3. Narrate.** The model comes back only to write the words. It can talk about the muscles the code already flagged. It cannot invent new numbers or new criticism.
+
+Why this matters: the model never gets to make up a score. Looking and talking are creative, so a model does them. Judging must be repeatable, so code does it. That is the whole trick. Your ratings stop drifting.
+
+The exact prompts are in [docs/PROMPTS.md](docs/PROMPTS.md).
+
+## Tech
+
+- Next.js
+- Supabase (auth, database, photo storage)
+- Anthropic Claude vision
+- Vercel (hosting)
+
+## Setup
+
+You do not need to be a developer. Copy, paste, done.
+
+**1. Deploy to Vercel.** Click the button. It makes your own copy.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+**2. Make your own free Supabase.** Sign up at supabase.com, create a project. Open the SQL editor. Run each file in `/supabase/migrations` in order, top to bottom. That builds your database.
+
+**3. Get your own Anthropic API key.** Sign up at console.anthropic.com and create a key. This powers the analysis.
+
+**4. Paste the env vars into Vercel.** Copy `.env.example`, fill it in, and add the same values in your Vercel project under Settings, Environment Variables:
+
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+SUPABASE_SECRET_KEY
+ANTHROPIC_API_KEY
+```
+
+The Supabase values are in your Supabase project settings. The Anthropic one is the key from step 3.
+
+**5. Open your URL.** Vercel gives you a link. That is your app.
+
+## Cost warning
+
+Read this before you start.
+
+Every analysis is a paid Claude vision call on **your own** Anthropic key. Four photos go to the model twice per run. That costs real money from your Anthropic account.
+
+No key, no analysis. The button that scores your photos will not work until you add a key.
+
+This is a codebase, not a hosted app. There is no shared server. Nobody is paying for you. You run your own copy on your own keys.
+
+## Free option
+
+Claude gives the best reads, but it costs money. If you want to run this for free:
+
+- Use a free vision tier instead. **Google AI Studio** gives free Gemini vision models with a daily limit ([aistudio.google.com](https://aistudio.google.com)).
+- You point the analysis at that model instead of Claude. It is a small change in the analysis route (`src/app/api/analyze`), not a rewrite.
+- The 3-stage pattern is the same. You are only swapping which model does the seeing and the wording.
+- Quality drops a bit and free tiers have daily caps. But it costs nothing.
+
+Default is Claude. Free is a swap, not the out-of-the-box path. Pick what fits you.
+
+## License
+
+MIT. Use it, change it, ship it.

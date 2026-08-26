@@ -1,0 +1,4 @@
+# Supabase CLI config for the PhysiqueMaxx repo. Migrations here are strictly
+# additive physiquemaxx_* objects applied to the shared your-supabase-project project
+# (ref your-project-ref) — see your security setup.
+project_id = "physiquemaxx"
