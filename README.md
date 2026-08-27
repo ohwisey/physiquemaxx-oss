@@ -25,7 +25,7 @@ plain words, the other sets it up for you step by step.
 ## Two ways to have it
 
 1. **Take the code.** Clone this repo, follow Setup, deploy your own copy.
-2. **Build it from one prompt.** Paste the prompt in [docs/THE_MASTER_PROMPT.md](docs/THE_MASTER_PROMPT.md) into an AI coding agent and let it build your own version. That one prompt is how this whole app started.
+2. **Build your own from one prompt.** Paste [docs/STARTER_PROMPT.md](docs/STARTER_PROMPT.md) into an AI coding agent. Fill in one blank and it builds *your* idea using the architecture that made this one work, explaining itself as it goes. (The original prompt behind this exact app is in [docs/THE_MASTER_PROMPT.md](docs/THE_MASTER_PROMPT.md).)
 
 Either way it is yours. Change it, rebrand it, ship it.
 

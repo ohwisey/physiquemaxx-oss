@@ -158,7 +158,8 @@ The last one is not a guess. That is how long this app took.
 
 - [docs/HOW_WE_BUILT_IT.md](docs/HOW_WE_BUILT_IT.md) — the steps we took, in order.
 - [docs/PROMPTS.md](docs/PROMPTS.md) — the real prompts, and why they are shaped that way.
-- [docs/THE_MASTER_PROMPT.md](docs/THE_MASTER_PROMPT.md) — one prompt that builds an app like this from nothing.
+- [docs/STARTER_PROMPT.md](docs/STARTER_PROMPT.md) — one prompt that builds *your* idea using this architecture, and teaches you the pattern while it does.
+- [docs/THE_MASTER_PROMPT.md](docs/THE_MASTER_PROMPT.md) — the original prompt behind this exact app.
 
 ## One honest warning
 
