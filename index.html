@@ -407,6 +407,16 @@ footer{border-top:1px solid var(--hair-2);padding:40px 0 60px}
 .divider{height:1px;background:linear-gradient(90deg,transparent,var(--hair),transparent);margin:0 auto;max-width:var(--maxw)}
 .tour-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle);margin-bottom:14px}
 .tour-tag .b{width:5px;height:5px;border-radius:50%;background:var(--ember)}
+
+  .warn{
+    margin-top:14px;padding:12px 14px;border-radius:10px;
+    background:rgba(255,101,55,.07);
+    border:1px solid rgba(255,101,55,.28);
+    border-left:3px solid var(--ember);
+    font-size:13.5px;line-height:1.55;color:var(--muted);
+  }
+  .warn b{color:var(--text)}
+  .warn a{color:var(--ember);text-decoration:underline}
 </style>
 </head>
 <body>
@@ -957,6 +967,7 @@ verdict(<span class="o">74</span>, [<br>
           <span class="lab">master prompt</span>
           Build a physique tracker. <span class="hl">Three stages:</span> a vision model returns evidence as JSON, plain code grades it against a fixed rubric at temp 0, a model writes a verdict under 35 words from the numbers only. Score 0–100: development 50, proportion 25, symmetry 15, conditioning 10…
         </div>
+        <p class="warn"><b>You still need your own API key.</b> The prompt builds you the app, but the app has to talk to a vision model to rate anything, and that runs on your key. Cents per scan. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get one here</a>.</p>
       </div>
     </div>
   </div>
