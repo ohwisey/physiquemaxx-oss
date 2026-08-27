@@ -961,12 +961,13 @@ verdict(<span class="o">74</span>, [<br>
       </div>
       <div class="way card reveal d2">
         <span class="num">WAY 02</span>
-        <h4>Paste one master prompt</h4>
-        <p>Hand the master prompt to an AI and have it build your own version from scratch. The whole idea, portable.</p>
+        <h4>Build your own from one prompt</h4>
+        <p>Fill in one blank and an AI builds <em>your</em> idea on this architecture, explaining itself as it goes. Rate anything: a CV, a guitar take, a room.</p>
         <div class="promptbox mono">
-          <span class="lab">master prompt</span>
-          Build a physique tracker. <span class="hl">Three stages:</span> a vision model returns evidence as JSON, plain code grades it against a fixed rubric at temp 0, a model writes a verdict under 35 words from the numbers only. Score 0–100: development 50, proportion 25, symmetry 15, conditioning 10…
+          <span class="lab">starter prompt</span>
+          I want to build <span class="hl">[your thing]</span>. Build it with me and teach me while you do it. Three stages, never one call. The score lives in code, not the AI. Check every AI reply in code and reject anything invented. Handle bad input honestly. Temperature 0, keys server-side. First write the plan and wait for my go.
         </div>
+        <a class="btn btn-ember" style="margin-top:14px" href="https://github.com/ohwisey/physiquemaxx-oss/blob/main/docs/STARTER_PROMPT.md" target="_blank" rel="noopener">Copy the full prompt</a>
         <p class="warn"><b>You still need your own API key.</b> The prompt builds you the app, but the app has to talk to a vision model to rate anything, and that runs on your key. Cents per scan. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get one here</a>.</p>
       </div>
     </div>
