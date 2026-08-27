@@ -370,7 +370,6 @@ function SheetContent({
     );
   }
 
-  const limited = analysis.status === "limited";
   const primaryBottleneck = analysis.bottlenecks[0] ?? null;
 
   return (
@@ -386,7 +385,7 @@ function SheetContent({
           className="micro rounded-full border px-2.5 py-1"
           style={{ borderColor: "rgba(20,19,18,0.25)", color: INK, opacity: 0.75 }}
         >
-          {limited ? "LIMITED VIEW" : `${analysis.confidence.toUpperCase()} CONFIDENCE`}
+          {`${analysis.confidence.toUpperCase()} CONFIDENCE`}
         </span>
       </motion.div>
 

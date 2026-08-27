@@ -67,16 +67,27 @@ No key, no analysis. The button that scores your photos will not work until you 
 
 This is a codebase, not a hosted app. There is no shared server. Nobody is paying for you. You run your own copy on your own keys.
 
-## Free option
+## Free option (not tested yet)
 
-Claude gives the best reads, but it costs money. If you want to run this for free:
+Claude gives the best reads. It costs cents per analysis on your own key.
 
-- Use a free vision tier instead. **Google AI Studio** gives free Gemini vision models with a daily limit ([aistudio.google.com](https://aistudio.google.com)).
-- You point the analysis at that model instead of Claude. It is a small change in the analysis route (`src/app/api/analyze`), not a rewrite.
-- The 3-stage pattern is the same. You are only swapping which model does the seeing and the wording.
-- Quality drops a bit and free tiers have daily caps. But it costs nothing.
+The code also supports Google Gemini, which has a free tier
+([aistudio.google.com](https://aistudio.google.com)). Set these instead of the
+Anthropic pair:
 
-Default is Claude. Free is a swap, not the out-of-the-box path. Pick what fits you.
+```
+AI_PROVIDER=google
+GOOGLE_API_KEY=your-key
+GOOGLE_MODEL=gemini-2.5-flash
+```
+
+Be straight with yourself about this path: it is wired up and it compiles, but
+nobody has run a real analysis through it and checked the answer against
+Claude. It might be fine. It might quietly be worse. Free tiers also cap how
+many requests you get per day, and Google renames models often.
+
+If you try it, run the same four photos through both and see whether they pick
+the same weak muscle. Claude is the tested default.
 
 ## License
 

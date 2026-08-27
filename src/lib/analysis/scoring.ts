@@ -263,47 +263,71 @@ export interface OverallInputs {
 
 /**
  * 50% development + 25% proportion + 15% symmetry + 10% conditioning fit.
- * Published ONLY on a pass gate — partial and fail never get an overall score.
+ *
+ * Rubric v1.2: a partial capture still gets a score. Components the capture
+ * could not evidence are dropped and the remaining weights are renormalised,
+ * so three visible muscle groups produce a real number rather than a refusal.
+ * Only a failed gate — nothing usable at all — has no score.
+ *
  * Photo quality, lighting, grooming, posing, pump, tanning: zero weight.
  */
 export function computeOverall(
   assessments: MuscleAssessment[],
   inputs: OverallInputs,
-  gateVerdict: QualityGate["verdict"],
+  gate: QualityGate,
 ): { overall: number | null; subscores: Subscores | null } {
-  if (gateVerdict !== "pass") return { overall: null, subscores: null };
+  if (gate.verdict === "fail") return { overall: null, subscores: null };
 
   const scored = assessments.filter((a) => a.score !== null);
-  // A pass capture with no assessable group or no proportion evidence is
-  // pathological Stage 1 output — refuse to fabricate a composite.
-  if (scored.length === 0 || inputs.proportions.length === 0) {
-    return { overall: null, subscores: null };
-  }
+  // A gate that passed with nothing assessable is pathological Stage 1 output
+  // — refuse to fabricate a composite out of no evidence at all.
+  if (scored.length === 0) return { overall: null, subscores: null };
+
+  const usableViews = new Set<ViewAngle>();
+  for (const q of gate.perView) if (isViewUsable(q)) usableViews.add(q.view);
 
   const development =
     scored.reduce((sum, a) => sum + (a.score as number), 0) / scored.length;
-  const proportion =
-    inputs.proportions.reduce((sum, p) => sum + PROPORTION_FIT_SCORE[p.fit], 0) /
-    inputs.proportions.length;
-  const symmetry = Math.max(
-    0,
-    100 - inputs.asymmetries.reduce((sum, a) => sum + ASYMMETRY_PENALTY[a.severity], 0),
-  );
   const conditioning = CONDITIONING_FIT_SCORE[inputs.conditioning];
 
+  // An empty asymmetry list only means "balanced" when a view could actually
+  // show left against right. On a side-only capture it is absence of evidence,
+  // so symmetry is dropped from the weighting instead of scoring a false 100.
+  const proportion =
+    inputs.proportions.length > 0
+      ? inputs.proportions.reduce((sum, p) => sum + PROPORTION_FIT_SCORE[p.fit], 0) /
+        inputs.proportions.length
+      : null;
+  const symmetry =
+    usableViews.has("front") || usableViews.has("back")
+      ? Math.max(
+          0,
+          100 - inputs.asymmetries.reduce((sum, a) => sum + ASYMMETRY_PENALTY[a.severity], 0),
+        )
+      : null;
+
+  const parts: Array<{ weight: number; value: number }> = [
+    { weight: OVERALL_WEIGHTS.development, value: development },
+    { weight: OVERALL_WEIGHTS.conditioning, value: conditioning },
+  ];
+  if (proportion !== null) {
+    parts.push({ weight: OVERALL_WEIGHTS.proportion, value: proportion });
+  }
+  if (symmetry !== null) {
+    parts.push({ weight: OVERALL_WEIGHTS.symmetry, value: symmetry });
+  }
+
+  const weightSum = parts.reduce((sum, p) => sum + p.weight, 0);
   const overall = Math.round(
-    OVERALL_WEIGHTS.development * development +
-      OVERALL_WEIGHTS.proportion * proportion +
-      OVERALL_WEIGHTS.symmetry * symmetry +
-      OVERALL_WEIGHTS.conditioning * conditioning,
+    parts.reduce((sum, p) => sum + p.weight * p.value, 0) / weightSum,
   );
 
   return {
     overall: Math.min(100, Math.max(0, overall)),
     subscores: {
       development: Math.round(development),
-      proportion: Math.round(proportion),
-      symmetry: Math.round(symmetry),
+      proportion: proportion === null ? null : Math.round(proportion),
+      symmetry: symmetry === null ? null : Math.round(symmetry),
       conditioning: Math.round(conditioning),
     },
   };

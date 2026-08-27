@@ -189,8 +189,16 @@ One hard rule the code obeys:
 Never alters, rounds up, or re-interprets Stage 1 anchors or confidence.
 ```
 
-If the photos are not good enough, no overall score is published.
-A rough set gets an honest partial read, not a refusal, and not a fake number.
+A partial capture still gets a score. Components the photos could not show
+are dropped and the remaining weights are renormalised, so three visible
+muscle groups still produce a real number.
+
+The one thing it will not do is invent evidence. An empty asymmetry list on a
+front-only shot means "we could not see it", not "you are balanced", so
+symmetry is dropped from the weighting rather than scored as a perfect 100.
+
+Only a set with nothing usable at all gets no score, and that returns retake
+instructions instead.
 
 ---
 

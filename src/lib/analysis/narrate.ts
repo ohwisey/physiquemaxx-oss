@@ -71,8 +71,10 @@ export function assembleAnalysisResult(
   return {
     status: complete ? "complete" : "limited",
     qualityGate: stage2.qualityGate,
-    overall: complete ? stage2.overall : null,
-    subscores: complete ? stage2.subscores : null,
+    // A partial capture keeps its score (rubric v1.2) — the retake guidance
+    // still tells the user which views would sharpen it.
+    overall: stage2.overall,
+    subscores: stage2.subscores,
     confidence: stage2.confidence,
     strongest:
       narration.strongest && greenMuscles.has(narration.strongest.muscle)

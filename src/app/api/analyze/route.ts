@@ -1,10 +1,17 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient as createUserClient } from "@/lib/supabase/server";
 import { createServiceClient, serviceRoleConfigured } from "@/lib/supabase/service";
 import { PHOTOS_BUCKET } from "@/lib/db-types";
 import type { ViewAngle } from "@/lib/types";
+import {
+  ModelRequestError,
+  callProvider,
+  resolveProvider,
+  type ModelMessage,
+  type ModelPart,
+  type Provider,
+} from "@/lib/analysis/model-provider";
 import {
   VIEW_ORDER,
   ageAsOf,
@@ -83,11 +90,6 @@ const RECENT_ANALYSES_LIMIT = 25;
 
 // ------------------------------------------------------------- structured call
 
-// Temperature 0 is the required deterministic setting, but Opus 4.7+ /
-// Sonnet 5 / Fable-class models reject sampling params with a 400 — omit it
-// there; those models are deterministic-enough by default at this task shape.
-const SAMPLING_REMOVED = /^claude-(fable-5|mythos-5|opus-5|opus-4-7|opus-4-8|sonnet-5)/;
-
 function extractJson(raw: string): unknown {
   let text = raw.trim();
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
@@ -108,33 +110,22 @@ function extractJson(raw: string): unknown {
  * second failure or refusal — the caller must fail cleanly, never fabricate.
  */
 async function callStructured<T>(
-  client: Anthropic,
+  provider: Provider,
   schema: z.ZodType<T>,
   params: {
-    model: string;
     system: string;
     maxTokens: number;
-    messages: Anthropic.MessageParam[];
+    messages: ModelMessage[];
   },
 ): Promise<T | null> {
   let messages = params.messages;
   for (let attempt = 0; attempt < 2; attempt++) {
-    const response = await client.messages.create({
-      model: params.model,
-      max_tokens: params.maxTokens,
+    const raw = await callProvider(provider, {
       system: params.system,
+      maxTokens: params.maxTokens,
       messages,
-      // Structured extraction doesn't need deep deliberation, and the whole
-      // pipeline must finish well inside serverless duration limits.
-      output_config: { effort: "medium" },
-      ...(SAMPLING_REMOVED.test(params.model) ? {} : { temperature: 0 }),
     });
-    if (response.stop_reason === "refusal") return null;
-
-    const raw = response.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("\n");
+    if (raw === null) return null;
 
     let problem: string;
     const json = extractJson(raw);
@@ -208,11 +199,12 @@ const inFlight = new Set<string>();
 // ----------------------------------------------------------------------- route
 
 export async function POST(request: Request) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  const model = process.env.ANTHROPIC_MODEL;
-  if (!apiKey || !model) {
+  const provider = resolveProvider();
+  if (!provider) {
     return NextResponse.json({ error: "analysis_not_configured" }, { status: 500 });
   }
+  // Recorded with every analysis so scores are never compared across models.
+  const model = provider.model;
   // Fail closed: without the service role the analysis could never persist,
   // so no model call is made at all.
   if (!serviceRoleConfigured()) {
@@ -385,18 +377,15 @@ export async function POST(request: Request) {
       return { view: p.view, url, mediaType: mediaTypeForPath(p.storage_path) };
     });
 
-    const client = new Anthropic({ apiKey });
-
     // STAGE 1 — vision evidence: all photos as image blocks, strict schema.
-    const content: Anthropic.ContentBlockParam[] = [];
+    const content: ModelPart[] = [];
     for (const photo of inputs) {
       content.push({ type: "text", text: `${photo.view.toUpperCase()} view photograph:` });
-      content.push({ type: "image", source: { type: "url", url: photo.url } });
+      content.push({ type: "image", url: photo.url, mediaType: photo.mediaType });
     }
     content.push({ type: "text", text: stage1UserText(inputs.map((p) => p.view)) });
 
-    const vision = await callStructured(client, visionEvidenceSchema, {
-      model,
+    const vision = await callStructured(provider, visionEvidenceSchema, {
       system: STAGE1_SYSTEM,
       maxTokens: 16000,
       messages: [{ role: "user", content }],
@@ -467,7 +456,7 @@ export async function POST(request: Request) {
         asymmetries: vision.symmetry.asymmetries,
         conditioning: vision.conditioning.band,
       },
-      qualityGate.verdict,
+      qualityGate,
     );
     const priorities = buildPriorityBlocks(rankPriorities(muscles, available));
 
@@ -494,10 +483,9 @@ export async function POST(request: Request) {
       estBodyFat: vision.estBodyFat,
     });
     const narration = await callStructured(
-      client,
+      provider,
       narrationSchema(allowedNumbersIn(payload)),
       {
-        model,
         system: STAGE3_SYSTEM,
         maxTokens: 16000,
         messages: [{ role: "user", content: payload }],
@@ -515,9 +503,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     // Never fabricate a result — clean upstream-failure JSON, no internals.
-    if (error instanceof Anthropic.APIError) {
+    if (error instanceof ModelRequestError) {
       return NextResponse.json(
-        { error: "analysis_failed", detail: `model request failed (${error.status ?? "network"})` },
+        { error: "analysis_failed", detail: `model request failed (${error.status})` },
         { status: 502 },
       );
     }

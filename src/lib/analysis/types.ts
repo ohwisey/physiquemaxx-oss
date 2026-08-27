@@ -107,8 +107,10 @@ export interface QualityGate {
 
 export interface Subscores {
   development: number;
-  proportion: number;
-  symmetry: number;
+  /** null when the capture carried no proportion evidence. */
+  proportion: number | null;
+  /** null when no view could show left/right balance. */
+  symmetry: number | null;
   conditioning: number;
 }
 
@@ -147,7 +149,7 @@ export interface AnalysisVersions {
 export interface AnalysisResult {
   status: "complete" | "limited" | "failed";
   qualityGate: QualityGate;
-  /** null unless status === "complete" (full valid four-view set) */
+  /** null only on a failed gate — a partial capture still scores. */
   overall: number | null;
   subscores: Subscores | null;
   confidence: "high" | "medium" | "low";

@@ -8,8 +8,8 @@ import type { Anchor, MuscleGroup } from "@/lib/analysis/types";
  * silently compared.
  */
 
-export const RUBRIC_VERSION = "1.1.0";
-export const SCORING_VERSION = "1.1.0";
+export const RUBRIC_VERSION = "1.2.0";
+export const SCORING_VERSION = "1.2.0";
 export const TARGET_PROFILE_VERSION = "1.0.0";
 
 /** Stage-1 confidence below this ⇒ NOT ASSESSABLE (spec §5). */
