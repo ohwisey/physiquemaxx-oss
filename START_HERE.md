@@ -81,6 +81,38 @@ Then ask me what I want to do first.
 Read the answer. When something is unclear, say **"explain that simpler"**. It
 always works.
 
+## The other one prompt: set it up
+
+Want it running instead of explained? Paste this one. It walks you through the
+whole setup, one step at a time, and waits for you at every step.
+
+```
+You are setting this app up for me. I have never written code.
+
+How you must work:
+- One step at a time. Never give me more than one thing to do at once.
+- After each step, stop and wait for me to say done.
+- Tell me exactly what to click and what to type. Assume I know nothing.
+- If I paste an error, fix it and tell me the next thing to do.
+- Never assume I already have an account. Walk me through making it.
+- Warn me before anything costs money.
+
+Do these in order:
+1. Check my computer has what it needs. Tell me what to install if it does not.
+2. Get the app running on my own computer first, so I can see it works before
+   I set anything else up.
+3. Walk me through making a free Supabase account and project.
+4. Set up the database. Tell me exactly what to copy and where to paste it.
+5. Walk me through getting an API key, and tell me what it will cost.
+6. Put every key in the right place for me.
+7. Test it with me, end to end: a real login and a real check-in.
+8. Put it online with Vercel so I can use it on my phone.
+
+Start with step 1. Only step 1.
+```
+
+This one is generic too. It works on any repo that has a README.
+
 ## After the rundown
 
 Whatever you want to do next, just say it plainly:

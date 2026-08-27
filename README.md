@@ -4,9 +4,9 @@ An AI physique tracker, built in a day. 4 photos in, muscle-by-muscle rating out
 
 You upload front, back, left, right. It scores development, proportion, symmetry and conditioning, then writes you a short, honest read.
 
-**Never written code?** Read [START_HERE.md](START_HERE.md) instead. It is one
-prompt you paste into Claude Code or Codex, and it explains this whole codebase
-to you in plain words.
+**Never written code?** Read [START_HERE.md](START_HERE.md) instead. Two
+prompts you paste into Claude Code or Codex: one explains this whole codebase in
+plain words, the other sets it up for you step by step.
 
 > ## You need your own API key
 >
