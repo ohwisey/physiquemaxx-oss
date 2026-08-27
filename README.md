@@ -4,6 +4,20 @@ An AI physique tracker, built in a day. 4 photos in, muscle-by-muscle rating out
 
 You upload front, back, left, right. It scores development, proportion, symmetry and conditioning, then writes you a short, honest read.
 
+> ## You need your own API key
+>
+> The rating is done by Claude's vision model, and that costs money. There is no
+> shared server here and nobody is paying for you — you bring your own key.
+>
+> **It is cheap.** A scan costs cents, not dollars.
+>
+> **Get a key:** [console.anthropic.com](https://console.anthropic.com/settings/keys)
+> — takes about two minutes.
+> Current rates: [anthropic.com/pricing](https://www.anthropic.com/pricing).
+>
+> Without a key everything installs and opens fine, but the analyse button will
+> not work.
+
 ## Two ways to have it
 
 1. **Take the code.** Clone this repo, follow Setup, deploy your own copy.
